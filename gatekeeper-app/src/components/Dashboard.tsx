@@ -1,34 +1,50 @@
 import { useNavigate } from 'react-router-dom';
 import { UserAuth } from "../context/AuthContext";
+import { BookOpen, LogOut, User, Book } from "lucide-react"; 
+import '../styles/base.css';
+import '../styles/dashboard.css';
 
 const Dashboard = () => {
-  const { session, signOut } = UserAuth();
+  // Use 'user' instead of 'session' for consistency with your other files
+  const { user, signOutUser } = UserAuth(); 
   const navigate = useNavigate();
 
+  // FIX: Define userInitial so the code knows what it is
+  const userInitial = user?.email?.charAt(0).toUpperCase() || "U";
+
   const handleSignOut = async () => {
-    try {
-      await signOut();
-      navigate('/signup'); // Send user back to sign in after logout
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
+    await signOutUser();
+    navigate("/signin");
   };
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-card">
-        <h2 className="dashboard-header">Dashboard</h2>
-        <p className="dashboard-welcome">
-          Welcome, <span className="user-email">{session?.user?.email}</span>
-        </p>
-        
-        <div className="dashboard-actions">
-          {/* Sign out button with vanilla CSS classes */}
-          <button onClick={handleSignOut} className="signout-button">
-            Sign out
-          </button>
+    <div className="dashboard-layout">
+      <header className="dashboard-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <BookOpen style={{ color: 'var(--neu-green)' }} size={24} />
+          <span style={{ fontWeight: 'bold' }}>NEU Library</span>
         </div>
-      </div>
+        <button onClick={handleSignOut} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <LogOut size={18} /> Logout
+        </button>
+      </header>
+      <main className="dashboard-main">
+        <div className="auth-card-modern" style={{ maxWidth: '600px' }}>
+          <div className="user-avatar">{userInitial}</div>
+          <h1>Student Portal</h1>
+          <p style={{ color: 'var(--text-muted)' }}>{user?.email}</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '2rem' }}>
+            <div style={{ padding: '1rem', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
+              <Book size={20} color="var(--neu-green)" /> 
+              <div style={{ fontWeight: 'bold' }}>My Books</div>
+            </div>
+            <div style={{ padding: '1rem', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
+              <User size={20} color="var(--neu-green)" /> 
+              <div style={{ fontWeight: 'bold' }}>Profile</div>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };

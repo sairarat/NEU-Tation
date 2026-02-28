@@ -1,80 +1,73 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserAuth } from '../context/AuthContext';
+import { supabase } from '../supabaseClient';
+import { BookOpen, LogIn, UserPlus } from "lucide-react"; 
+import '../styles/base.css';
+import '../auth.css';
 
 const Signin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({ email: '', pass: '', general: '' });
 
-  const { signInUser, signInWithGoogle } = UserAuth(); 
+  const { signInUser } = UserAuth();
   const navigate = useNavigate();
 
   const handleSignin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
+  e.preventDefault();
+  setLoading(true);
+  setErrors({ email: "", pass: "", general: "" });
 
-    try {
-      const result = await signInUser(email, password);
-      if (result.success) {
-        navigate('/dashboard'); 
-      } else {
-        setError(result.error?.message || result.error || "Invalid email or password");
-      }
-    } catch (err: any) {
-      setError("A network error occurred.");
-    } finally {
-      setLoading(false);
+    const result = await signInUser(email, password);
+  // signInUser now returns { success, user? } so we can destructure user safely
+  if (result.success && result.user) {
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("college_office, role")
+      .eq("id", result.user.id)
+      .single();
+
+    if (error || !profile?.college_office) {
+      navigate("/complete-profile");
+    } else if (profile.role === "admin") {
+      navigate("/admin-dashboard");
+    } else {
+      navigate("/dashboard");
     }
-  };
+  } else {
+    setErrors((prev) => ({ ...prev, general: result.error || "Invalid credentials" }));
+    setLoading(false);
+  }
+};
 
   return (
     <div className="auth-container">
-      <form onSubmit={handleSignin} className="auth-form">
-        <h2 className="SignUp">Sign in</h2>
-        <p className="auth-subtitle">
-          Don't have an account? <Link to="/signup">Sign up!</Link>
-        </p>
+      <div className="auth-card-modern">
+        <div className="brand-circle"><BookOpen color="white" size={28} /></div>
+        <h1 className="auth-title">NEU Library</h1>
         
-        <div className="Signup-Fields">
-          <input 
-            type='email' 
-            placeholder="Email" 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)} 
-            className="auth-input" 
-            required
-          />
-          <input 
-            type='password' 
-            placeholder="Password" 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)} 
-            className="auth-input" 
-            required
-          />
-          <button type='submit' disabled={loading} id="signup-button">
-            {loading ? 'Signing in...' : 'Sign in'}
-          </button>
-
-          {/* Added Google Auth Option */}
-          <div className="auth-divider">
-            <span>or</span>
-          </div>
-
-          <button 
-            type="button" 
-            onClick={signInWithGoogle} 
-            className="google-btn"
-          >
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
-            Continue with Google
-          </button>
+        <div className="auth-tabs">
+          <div className="tab-link active"><LogIn size={18} /> Sign In</div>
+          <Link to="/signup" className="tab-link"><UserPlus size={18} /> Sign Up</Link>
         </div>
-        {error && <p className="error-message">{error}</p>}
-      </form>
+
+        <form onSubmit={handleSignin}>
+          <div className="form-group">
+            <label>Email</label>
+            <input className="input-modern" type="email" placeholder="name@neu.edu.ph" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          </div>
+          <div className="form-group">
+            <label>Password</label>
+            <input className="input-modern" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          </div>
+          {errors.general && <p className="field-error" style={{textAlign: 'center'}}>{errors.general}</p>}
+          <button type="submit" className="btn-primary-neu" disabled={loading}>
+            {loading ? "Verifying..." : "Sign In"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

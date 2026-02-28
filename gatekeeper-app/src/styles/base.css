@@ -1,0 +1,36 @@
+:root {
+  --neu-green: #4caf50;
+  --neu-green-hover: #43a047;
+  --bg-light: #f8f9fa;
+  --bg-white: #ffffff;
+  --input-fill: #f1f3f4;
+  --text-dark: #1a1d21;
+  --text-muted: #70757a;
+  --border-color: #e8eaed;
+  --radius-xl: 16px;
+  --radius-md: 8px;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Path to your image */
+  background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
+                    url('../assets/placeholder_image.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  
+  /* ADJUST BLUR HERE: 5px to 10px is usually the "sweet spot" */
+  filter: blur(8px); 
+  
+  /* Scale it up slightly (1.1) to hide the white edges caused by blurring */
+  transform: scale(1.1);
+  
+  z-index: -1; /* Keeps it behind your content */
+}
