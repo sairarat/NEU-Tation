@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserAuth } from '../context/AuthContext';
 import { supabase } from '../supabaseClient';
-import { BookOpen, LogIn, UserPlus } from "lucide-react"; 
+import { BookOpen, LogIn, UserPlus, Chrome } from "lucide-react"; 
 import '../styles/base.css';
 import '../auth.css';
 
@@ -10,37 +10,38 @@ const Signin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({ email: '', pass: '', general: '' });
+  const [error, setError] = useState('');
 
-  const { signInUser } = UserAuth();
+  const { signInUser, signInWithGoogle } = UserAuth();
   const navigate = useNavigate();
 
   const handleSignin = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
-  setErrors({ email: "", pass: "", general: "" });
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
     const result = await signInUser(email, password);
-  // signInUser now returns { success, user? } so we can destructure user safely
-  if (result.success && result.user) {
-    const { data: profile, error } = await supabase
-      .from("profiles")
-      .select("college_office, role")
-      .eq("id", result.user.id)
-      .single();
 
-    if (error || !profile?.college_office) {
-      navigate("/complete-profile");
-    } else if (profile.role === "admin") {
-      navigate("/admin-dashboard");
+    if (result.success && result.user) {
+      // Small delay to allow SQL Trigger to finish profile creation
+      await new Promise(res => setTimeout(res, 500));
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("college_office, role")
+        .eq("id", result.user.id)
+        .single();
+
+      if (!profile?.college_office) {
+        navigate("/complete-profile");
+      } else {
+        navigate(profile.role === "admin" ? "/admin-dashboard" : "/dashboard");
+      }
     } else {
-      navigate("/dashboard");
+      setError(result.error || "Invalid credentials");
+      setLoading(false);
     }
-  } else {
-    setErrors((prev) => ({ ...prev, general: result.error || "Invalid credentials" }));
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="auth-container">
@@ -62,11 +63,16 @@ const Signin = () => {
             <label>Password</label>
             <input className="input-modern" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </div>
-          {errors.general && <p className="field-error" style={{textAlign: 'center'}}>{errors.general}</p>}
+          {error && <p className="field-error" style={{textAlign: 'center', color: '#ef4444'}}>{error}</p>}
           <button type="submit" className="btn-primary-neu" disabled={loading}>
             {loading ? "Verifying..." : "Sign In"}
           </button>
         </form>
+
+        <div className="auth-divider"><span>OR</span></div>
+        <button onClick={signInWithGoogle} className="btn-google-auth" type="button">
+          <Chrome size={20} /> Continue with Google
+        </button>
       </div>
     </div>
   );

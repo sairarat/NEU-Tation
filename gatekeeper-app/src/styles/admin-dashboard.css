@@ -1,0 +1,54 @@
+/* New Search Bar Styling */
+.admin-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.admin-search-bar {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.admin-search-bar input {
+  background: transparent;
+  border: none;
+  color: white;
+  margin-left: 10px;
+  outline: none;
+  width: 100%;
+}
+
+.admin-error-msg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px;
+  color: #fb7185;
+  font-weight: 600;
+}
+
+.admin-stat-banner {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  padding: 10px 20px;
+  border-radius: 50px;
+  display: inline-block;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #60a5fa;
+}

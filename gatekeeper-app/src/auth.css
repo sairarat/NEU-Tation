@@ -1,3 +1,4 @@
+/* src/auth.css */
 .auth-container {
   min-height: 100vh;
   display: flex;
@@ -7,36 +8,43 @@
 }
 
 .auth-card-modern {
-  background: var(--bg-white);
-  padding: 40px;
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow);
-  width: 100%;
-  max-width: 420px;
+  background: var(--bg-white) !important; /* Forces background to white */
+  padding: 48px 40px !important; 
+  border-radius: 40px !important; 
+  box-shadow: var(--shadow) !important;
+  width: 90% !important; /* Allows small shrinkage on tiny screens */
+  max-width: 430px !important; /* STOPS THE STRETCHING */
   text-align: center;
+  position: relative;
+  z-index: 1;
+  margin: 20px auto; /* Centers it horizontally */
+  display: block;
 }
 
 .brand-circle {
   background: var(--neu-green);
-  width: 64px;
-  height: 64px;
+  /* Smaller brand icon container */
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 24px;
+  margin: 0 auto 12px;
 }
 
 .auth-title {
-  font-size: 28px;
+  /* Smaller typography to match the compact card */
+  font-size: 20px;
   font-weight: 800;
-  margin: 0 0 8px;
+  margin: 0 0 4px;
+  color: var(--text-dark);
 }
 
 .auth-subtitle {
   color: var(--text-muted);
-  font-size: 14px;
-  margin-bottom: 32px;
+  font-size: 13px;
+  margin-bottom: 20px;
 }
 
 .auth-tabs {
@@ -44,88 +52,151 @@
   background: var(--input-fill);
   padding: 4px;
   border-radius: var(--radius-md);
-  margin-bottom: 32px;
+  margin-bottom: 16px;
 }
 
 .tab-link {
   flex: 1;
-  padding: 10px;
-  text-decoration: none;
+  padding: 8px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 12px;
   border-radius: calc(var(--radius-md) - 2px);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   transition: 0.2s;
-}
-
-.tab-link.active {
-  background: var(--bg-white);
-  color: var(--text-dark);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.tab-link.inactive {
-  color: var(--text-muted);
+  text-decoration: none;
 }
 
 .name-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .form-group {
   text-align: left;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
 .form-group label {
-  display: block;
   font-weight: 700;
-  font-size: 14px;
-  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--text-dark);
 }
 
 .input-modern {
   width: 100%;
-  padding: 14px 16px;
+  padding: 10px 12px;
   background: var(--input-fill);
-  border: 2px solid transparent;
+  border: 1.5px solid transparent;
   border-radius: var(--radius-md);
-  box-sizing: border-box;
+  font-size: 14px;
 }
 
 .btn-primary-neu {
   width: 100%;
   background: var(--neu-green);
   color: white;
-  padding: 14px;
+  padding: 13px;
   border: none;
   border-radius: var(--radius-md);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+  margin-top: 8px;
+  transition: 0.2s;
+}
+
+.btn-primary-neu:hover {
+  background: var(--neu-green-hover);
+  transform: translateY(-1px);
 }
 
 .footer-note {
-  margin-top: 24px;
-  font-size: 12px;
+  margin-top: 16px;
+  font-size: 11px;
   color: var(--text-muted);
 }
 
-.field-error {
-  color: #ef4444; /* The specific red from your screenshot */
-  font-size: 13px;
-  margin-top: 8px;
-  margin-bottom: 0;
-  font-weight: 500;
+/* Add to auth.css */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  color: #94a3b8;
+  font-size: 12px;
+}
+.auth-divider::before, .auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+  margin: 0 10px;
 }
 
-/* Optional: Make the labels turn red too when there is an error */
-.form-group label.error-label {
-  color: #ef4444;
+.btn-google-auth {
+  width: 100%;
+  padding: 12px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.edit-pill {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 50px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  color: #94a3b8;
+  font-size: 12px;
+}
+.auth-divider::before, .auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+  margin: 0 10px;
+}
+
+.btn-google-auth {
+  width: 100%;
+  padding: 12px;
+  background: white;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 700;
+  color: #1e293b;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-google-auth:hover {
+  background: #f8fafc;
 }

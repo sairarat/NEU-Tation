@@ -1,21 +1,20 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import App from "./App";
-import Dashboard from "./components/Dashboard";
 import Signin from "./components/Signin";
 import Signup from "./components/Signup";
+import CompleteProfile from "./components/CompleteProfile";
+import UserDashboard from "./components/UserDashboard";
+import AdminDashboard from "./components/AdminDashboard";
+import RoleGuard from "./components/RoleGuard";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />, // This is the layout wrapper
+    element: <App />, 
     children: [
       {
-        index: true, // This makes Dashboard show up by default at "/"
-        element: <Dashboard />,
-      },
-      {
-        path: "dashboard",
-        element: <Dashboard />,
+        index: true, 
+        element: <Navigate to="/signin" replace />,
       },
       {
         path: "signin",
@@ -24,6 +23,30 @@ export const router = createBrowserRouter([
       {
         path: "signup",
         element: <Signup />,
+      },
+      {
+        path: "complete-profile",
+        element: <CompleteProfile />,
+      },
+      {
+        path: "dashboard",
+        element: (
+          <RoleGuard allowedRoles={["visitor", "student", "staff"]}>
+            <UserDashboard />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "admin-dashboard",
+        element: (
+          <RoleGuard allowedRoles={["admin"]}>
+            <AdminDashboard />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "*",
+        element: <Navigate to="/signin" replace />,
       },
     ],
   },

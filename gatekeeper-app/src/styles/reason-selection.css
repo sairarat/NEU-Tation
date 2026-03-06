@@ -1,0 +1,94 @@
+/* reason-selection.css */
+
+.reason-selection-wrapper {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.auth-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0;
+}
+
+.auth-subtitle {
+  color: #64748b;
+  margin-top: 8px;
+  font-size: 1rem;
+}
+
+.reason-grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+  width: 100%;
+}
+
+.reason-card-btn {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 30px 10px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.reason-card-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.reason-btn-text {
+  font-weight: 600;
+  color: #334155;
+  font-size: 0.95rem;
+}
+
+.success-state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.success-icon-center {
+  margin-bottom: 20px;
+}
+
+/* Loader Styles */
+.loader-centered {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive Scaling */
+@media (max-width: 640px) {
+  .reason-grid-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 400px) {
+  .reason-grid-container {
+    grid-template-columns: 1fr;
+  }
+}

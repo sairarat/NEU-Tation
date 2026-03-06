@@ -2,83 +2,108 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { UserAuth } from "../context/AuthContext";
-import { GraduationCap, ShieldCheck, Loader2 } from "lucide-react";
+import { GraduationCap, Loader2, CheckCircle2, ArrowRight, Hash } from "lucide-react";
 import '../styles/base.css';
-import '../auth.css';
+import '../styles/profile-setup.css';
 
 const CompleteProfile = () => {
   const { user } = UserAuth();
   const navigate = useNavigate();
   
-  // State for form fields
   const [college, setCollege] = useState("");
-  const [role, setRole] = useState("visitor");
+  const [role, setRole] = useState("visitor"); 
+  const [studentNo, setStudentNo] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  // Security: Redirect if no user is logged in
   useEffect(() => {
-    if (!user) {
-      navigate("/signin");
-    }
+    if (!user) navigate("/signin");
   }, [user, navigate]);
+
+  // Handle student number format: ##-#####-###
+  const handleStudentNoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Limit to 12 characters (10 digits + 2 dashes)
+    if (value.length <= 12) {
+      setStudentNo(value);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user?.id || !college) return;
     
-    if (!user?.id) return;
-    if (!college) {
-      alert("Please select a department.");
-      return;
+    // Validation for Students
+    if (role === "student") {
+      const pattern = /^\d{2}-\d{5}-\d{3}$/;
+      if (!pattern.test(studentNo)) {
+        alert("Invalid format. Please use: ##-#####-###");
+        return;
+      }
     }
 
     setLoading(true);
 
     try {
-      // Update the existing profile row created during Signup
       const { error } = await supabase
         .from("profiles")
         .update({ 
           college_office: college, 
-          role: role,
+          role: role, 
+          student_number: role === "student" ? studentNo : null,
           updated_at: new Date().toISOString() 
         })
         .eq("id", user.id);
 
       if (error) throw error;
-
-      // Logic: Route based on the role they just selected
-      if (role === "admin") {
-        navigate("/admin-dashboard");
-      } else {
-        navigate("/dashboard");
-      }
+      setShowSuccess(true);
     } catch (error: any) {
-      console.error("Profile Update Error:", error);
-      alert(error.message || "Failed to save profile. Check your connection.");
+      console.error(error);
+      alert("Failed to save profile. Please check your database columns.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card-modern">
-        <div className="brand-circle">
-          {role === 'admin' ? <ShieldCheck color="white" size={32} /> : <GraduationCap color="white" size={32} />}
+    <div className="profile-setup-container">
+      {showSuccess && (
+        <div className="modal-overlay-blur">
+          <div className="success-card-modern">
+            <div className="success-icon-container">
+              <CheckCircle2 size={60} color="#10b981" />
+            </div>
+            <h2 className="setup-title">Setup Complete!</h2>
+            <p className="setup-subtitle">Welcome to the NEU Library system.</p>
+            <button 
+              onClick={() => navigate("/dashboard")} 
+              className="submit-btn-modern success-btn"
+            >
+              Continue to Dashboard <ArrowRight size={18} />
+            </button>
+          </div>
         </div>
-        
-        <h1 className="auth-title">Complete Your Profile</h1>
-        <p className="auth-subtitle">Please provide your details to access the NEU Library system.</p>
+      )}
 
-        <form onSubmit={handleSubmit} className="auth-form">
+      <main className="profile-card">
+        <div className="card-accent-line" />
+        
+        <header className="profile-header">
+          <div className="avatar-wrapper">
+            <GraduationCap color="white" size={36} />
+          </div>
+          <h1 className="setup-title">Setup Profile</h1>
+          <p className="setup-subtitle">Verify your identity and department.</p>
+        </header>
+
+        <form onSubmit={handleSubmit} className="setup-form">
           {/* Department Selection */}
-          <div className="form-group">
-            <label htmlFor="college-select">College / Department</label>
+          <div className="input-group">
+            <label className="input-label">College / Department</label>
             <select 
-              id="college-select"
-              className="input-modern" 
+              className="select-custom" 
               value={college} 
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCollege(e.target.value)} 
+              onChange={(e) => setCollege(e.target.value)} 
               required
             >
               <option value="" disabled>-- Select your Department --</option>
@@ -87,41 +112,53 @@ const CompleteProfile = () => {
               <option value="COE">College of Engineering</option>
               <option value="CBA">College of Business Administration</option>
               <option value="CED">College of Education</option>
-              <option value="ADMIN">Administrative Office</option>
             </select>
           </div>
 
           {/* Role Selection */}
-          <div className="form-group">
-            <label htmlFor="role-select">Access Level</label>
+          <div className="input-group">
+            <label className="input-label">I am a:</label>
             <select 
-              id="role-select"
-              className="input-modern" 
+              className="select-custom" 
               value={role} 
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setRole(e.target.value)}
+              onChange={(e) => {
+                setRole(e.target.value);
+                if (e.target.value !== 'student') setStudentNo("");
+              }}
             >
-              <option value="visitor">Student / Visitor</option>
-              <option value="admin">Library Administrator</option>
+              <option value="visitor">Visitor</option>
+              <option value="student">Student</option>
+              <option value="staff">Staff / Faculty</option>
             </select>
           </div>
 
+          {/* Conditional Student Number Input */}
+          {role === "student" && (
+            <div className="input-group animate-fade-in">
+              <label className="input-label">Student Number</label>
+              <div className="input-with-icon">
+                <Hash size={18} className="input-icon" />
+                <input 
+                  type="text" 
+                  placeholder="##-#####-###"
+                  className="select-custom icon-padding"
+                  value={studentNo}
+                  onChange={handleStudentNoChange}
+                  required
+                />
+              </div>
+            </div>
+          )}
+
           <button 
             type="submit" 
-            className="btn-primary-neu" 
+            className="submit-btn-modern" 
             disabled={loading || !college}
-            style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}
           >
-            {loading ? (
-              <>
-                <Loader2 className="animate-spin" size={18} />
-                Saving Profile...
-              </>
-            ) : (
-              "Finish Setup"
-            )}
+            {loading ? <Loader2 className="animate-spin" size={20} /> : "Finish Setup"}
           </button>
         </form>
-      </div>
+      </main>
     </div>
   );
 };

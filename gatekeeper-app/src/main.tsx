@@ -1,16 +1,15 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import { BrowserRouter } from 'react-router-dom' // Change this
-import App from './App' // Import App
-import { AuthContextProvider } from './context/AuthContext'
+// src/main.tsx
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { RouterProvider } from 'react-router-dom';
+import { router } from './router'; // Path to your router file
+import { AuthContextProvider } from './context/AuthContext';
+import './index.css';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
     <AuthContextProvider>
-      <BrowserRouter> 
-        <App />
-      </BrowserRouter>
+      <RouterProvider router={router} />
     </AuthContextProvider>
-  </StrictMode>
-)
+  </React.StrictMode>
+);
