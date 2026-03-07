@@ -11,7 +11,7 @@
   display: flex;
   flex-direction: column;
   font-family: 'Inter', sans-serif;
-  overflow-x: hidden; /* Prevents tiny horizontal shifts on mobile */
+  overflow-x: hidden; 
 }
 
 /* Navigation Bar */
@@ -90,13 +90,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px; /* Adjusted side padding for smaller screens */
+  padding: 40px 20px;
 }
 
-/* The Glass Card */
+/* The Glass Card - NO SIZING CHANGES AS REQUESTED */
 .glass-card-container {
-  width: 100%; /* Changed from 95% to 100% for better mobile scaling */
-  max-width: 800px;
+  width: 100%; 
+  max-width: 650px;
+  max-height: 560px;
+  height: 100%;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(25px) saturate(180%);
   -webkit-backdrop-filter: blur(25px) saturate(180%);
@@ -119,9 +121,19 @@
   background: #10b981;
 }
 
+/* Updated Section to fill vertical space correctly */
+.profile-management-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* Centering the white card vertically */
+  flex: 1; 
+  width: 100%;
+}
+
 .glass-card-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .glass-avatar-icon {
@@ -150,30 +162,31 @@
   font-size: 1rem;
 }
 
-/* White Inner Card */
+/* White Inner Card (Reason Selection Wrapper) */
 .auth-card-modern {
   background: white;
   padding: 32px;
   border-radius: 24px;
   width: 100%; 
-  max-width: 550px; 
-  margin-top: 20px;
+  max-width: 500px; 
+  margin: 0 auto;
   text-align: center;
-  margin-left: auto;
-  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
 /* Reason Grid Adjustment */
 .reason-grid {
   display: grid;
-  /* minmax ensures buttons don't get too tiny before wrapping */
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
   gap: 16px;
   margin-top: 24px;
   width: 100%;
 }
 
-/* MEDIA QUERIES - These only activate on smaller screens */
+/* Media Queries for Responsiveness */
 @media (max-width: 768px) {
   .dashboard-nav {
     padding: 16px 20px;
@@ -182,7 +195,7 @@
 
 @media (max-width: 640px) {
   .nav-brand-text {
-    display: none; /* Hide brand name on small phones to save space */
+    display: none;
   }
   
   .dashboard-nav {
@@ -190,12 +203,13 @@
   }
 
   .glass-card-container {
-    padding: 32px 20px; /* Reduce internal padding on mobile */
+    padding: 32px 20px;
     border-radius: 24px;
+    max-height: none; /* Allow mobile scrolling for usability */
   }
 
   .glass-card-title {
-    font-size: 1.5rem; /* Shrink text slightly so it doesn't break layout */
+    font-size: 1.5rem;
   }
   
   .auth-card-modern {

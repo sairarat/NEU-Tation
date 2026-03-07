@@ -1,15 +1,15 @@
-// src/main.tsx
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { RouterProvider } from 'react-router-dom';
-import { router } from './router'; // Path to your router file
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { RouterProvider } from 'react-router-dom'; // Use RouterProvider for createBrowserRouter
+import { router } from './router'; // Import your router configuration
 import { AuthContextProvider } from './context/AuthContext';
 import './index.css';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    {/* AuthContextProvider MUST be the top-most wrapper */}
     <AuthContextProvider>
       <RouterProvider router={router} />
     </AuthContextProvider>
-  </React.StrictMode>
+  </StrictMode>
 );

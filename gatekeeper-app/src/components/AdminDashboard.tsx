@@ -9,6 +9,7 @@ import {
 
 import AdminDashboardAnalytics from './AdminDashboardAnalytics'; 
 import '../styles/admin-dashboard.css';
+import neuLogo from '../assets/neu_logo_placeholder.png';
 
 const AdminDashboard = () => {
   const { signOutUser, user } = UserAuth();
@@ -76,8 +77,7 @@ const AdminDashboard = () => {
       <aside className="admin-sidebar">
         <div className="sidebar-header">
           <div className="admin-logo-group">
-            <ShieldCheck className="admin-icon-blue" size={24} />
-            <span className="admin-brand-text">NEU Admin</span>
+          <img src={neuLogo} alt="NEU Logo" className="admin-custom-logo" /><span className="admin-brand-text">NEU Admin</span>
           </div>
           <button className="sidebar-close-btn" onClick={() => setIsSidebarOpen(false)}>
             <X size={20} />

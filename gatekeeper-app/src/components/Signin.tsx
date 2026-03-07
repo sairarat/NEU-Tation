@@ -68,7 +68,6 @@ const Signin = () => {
             {loading ? "Verifying..." : "Sign In"}
           </button>
         </form>
-
         <div className="auth-divider"><span>OR</span></div>
         <button onClick={signInWithGoogle} className="btn-google-auth" type="button">
           <Chrome size={20} /> Continue with Google
