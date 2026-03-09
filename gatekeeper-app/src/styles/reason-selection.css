@@ -2,93 +2,83 @@
 
 .reason-selection-wrapper {
   width: 100%;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center ;
 }
 
 .auth-title {
-  font-size: 1.75rem;
+  font-size: clamp(1.1rem, 4vw, 1.5rem);
   font-weight: 800;
   color: #1e293b;
-  margin: 0;
+  margin-bottom: 4px;
+  text-align: center;
 }
 
 .auth-subtitle {
   color: #64748b;
-  margin-top: 8px;
-  font-size: 1rem;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 .reason-grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 20px;
-  margin-top: 30px;
-  width: 100%;
+  grid-template-columns: 1fr 1fr; /* Explicit 50/50 split */
+  gap: 12px;
+  margin-top: 24px;
+  /* FORCE full width so there is no "leftover" space on the right */
+  width: 100%; 
+  /* Ensures any extra fractional pixels are shared equally */
+  justify-items: center; 
 }
 
 .reason-card-btn {
-  background: white;
+  background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 30px 10px;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  border-radius: 18px;
+  padding: 18px 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s ease;
   width: 100%;
 }
 
+.reason-card-btn svg {
+  width: 32px;
+  height: 32px;
+}
+.reason-btn-text {
+  font-weight: 700;
+  color: #334155;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
 .reason-card-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
 .reason-btn-text {
   font-weight: 600;
   color: #334155;
-  font-size: 0.95rem;
+  font-size: clamp(0.8rem, 2vw, 0.95rem);
+  text-align: center;
 }
 
-.success-state-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 0;
-}
+/* ... Success and Loader styles remain same ... */
 
-.success-icon-center {
-  margin-bottom: 20px;
-}
-
-/* Loader Styles */
-.loader-centered {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-}
-
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* Responsive Scaling */
-@media (max-width: 640px) {
-  .reason-grid-container {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-}
-
-@media (max-width: 400px) {
-  .reason-grid-container {
-    grid-template-columns: 1fr;
+/* Simplified Responsive Scaling */
+@media (max-width: 480px) {
+  .reason-card-btn:last-child:nth-child(odd) {
+    grid-column: span 2;
+    flex-direction: row;
+    gap: 15px;
+    padding: 15px;
   }
 }

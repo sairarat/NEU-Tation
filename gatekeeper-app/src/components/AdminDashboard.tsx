@@ -7,7 +7,9 @@ import {
   Menu, X, LayoutDashboard, BarChart3, History, Settings 
 } from 'lucide-react';
 
+// Import your sub-components
 import AdminDashboardAnalytics from './AdminDashboardAnalytics'; 
+import AdminDashboardLogs from './AdminDashboardLogs'; // New Component
 import '../styles/admin-dashboard.css';
 import neuLogo from '../assets/neu_logo_placeholder.png';
 
@@ -20,13 +22,12 @@ const AdminDashboard = () => {
   const [error, setError] = useState<string | null>(null);
   
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState('directory');
+  const [activeTab, setActiveTab] = useState('directory'); // Options: 'analytics', 'directory', 'logs'
 
   useEffect(() => {
     const fetchAllUsers = async () => {
       setLoading(true);
       setError(null);
-      // Fetches all profiles to populate the management table
       const { data, error: fetchError } = await supabase
         .from('profiles')
         .select('*')
@@ -43,22 +44,17 @@ const AdminDashboard = () => {
     if (user) fetchAllUsers();
   }, [user]);
 
-  // Day 3: The "Power to Block" Logic - Updates database in real-time
   const toggleUserStatus = async (userId: string, currentStatus: boolean) => {
     const newStatus = !currentStatus;
-    
     const { error: updateError } = await supabase
       .from('profiles')
       .update({ is_active: newStatus })
       .eq('id', userId);
     
     if (!updateError) {
-      // Optimistic UI update to reflect change immediately
       setAllUsers(prev => prev.map(u => 
         u.id === userId ? { ...u, is_active: newStatus } : u
       ));
-    } else {
-      console.error("Update failed:", updateError.message);
     }
   };
 
@@ -74,10 +70,12 @@ const AdminDashboard = () => {
   return (
     <div className={`admin-layout ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
       
+      {/* Sidebar Navigation */}
       <aside className="admin-sidebar">
         <div className="sidebar-header">
           <div className="admin-logo-group">
-          <img src={neuLogo} alt="NEU Logo" className="admin-custom-logo" /><span className="admin-brand-text">NEU Admin</span>
+            <img src={neuLogo} alt="NEU Logo" className="admin-custom-logo" />
+            <span className="admin-brand-text">NEU Admin</span>
           </div>
           <button className="sidebar-close-btn" onClick={() => setIsSidebarOpen(false)}>
             <X size={20} />
@@ -85,14 +83,26 @@ const AdminDashboard = () => {
         </div>
 
         <nav className="sidebar-nav">
-          <div className={`nav-item ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => setActiveTab('analytics')}>
+          <div 
+            className={`nav-item ${activeTab === 'analytics' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('analytics')}
+          >
             <BarChart3 size={20} /> <span>Analytics</span>
           </div>
-          <div className={`nav-item ${activeTab === 'directory' ? 'active' : ''}`} onClick={() => setActiveTab('directory')}>
+          
+          <div 
+            className={`nav-item ${activeTab === 'directory' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('directory')}
+          >
             <Users size={20} /> <span>User Directory</span>
           </div>
-          <div className="nav-item"><History size={20} /> <span>Activity Logs</span></div>
-          <div className="nav-item"><Settings size={20} /> <span>Settings</span></div>
+          
+          <div 
+            className={`nav-item ${activeTab === 'logs' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('logs')}
+          >
+            <History size={20} /> <span>Activity Logs</span>
+          </div>
         </nav>
 
         <div className="sidebar-footer">
@@ -102,33 +112,53 @@ const AdminDashboard = () => {
         </div>
       </aside>
 
+      {/* Main Content Area */}
       <div className="admin-main-wrapper">
         <header className="admin-nav">
           <div className="nav-left">
-            <button className="hamburger-btn" onClick={() => setIsSidebarOpen(true)}><Menu size={24} /></button>
+            {!isSidebarOpen && (
+              <button className="hamburger-btn" onClick={() => setIsSidebarOpen(true)}>
+                <Menu size={24} />
+              </button>
+            )}
             <div className="admin-logo-group">
               <span className="admin-brand-text">NEU Library Intelligence</span>
             </div>
           </div>
-          <div className="nav-right"><span className="user-email-tag">{user?.email}</span></div>
+          <div className="nav-right">
+            <span className="user-email-tag">{user?.email}</span>
+          </div>
         </header>
 
         <main className="admin-main-content">
-          {activeTab === 'analytics' ? (
-            <AdminDashboardAnalytics />
-          ) : (
+          {/* TAB 1: ANALYTICS */}
+          {activeTab === 'analytics' && <AdminDashboardAnalytics />}
+
+          {/* TAB 2: ACTIVITY LOGS */}
+          {activeTab === 'logs' && <AdminDashboardLogs />}
+
+          {/* TAB 3: USER DIRECTORY (Default) */}
+          {activeTab === 'directory' && (
             <div className="admin-glass-card animate-fade-in">
               <header className="admin-card-header">
                 <h1 className="admin-title">User Management</h1>
                 <div className="admin-controls">
-                  <select className="admin-filter-select" value={filterRole} onChange={(e) => setFilterRole(e.target.value)}>
+                  <select 
+                    className="admin-filter-select" 
+                    value={filterRole} 
+                    onChange={(e) => setFilterRole(e.target.value)}
+                  >
                     <option value="all">All Roles</option>
                     <option value="student">Students</option>
                     <option value="staff">Staff/Faculty</option>
                   </select>
                   <div className="admin-search-bar">
                     <Search size={18} color="rgba(255,255,255,0.4)" />
-                    <input type="text" placeholder="Search users..." onChange={(e) => setSearchTerm(e.target.value)} />
+                    <input 
+                      type="text" 
+                      placeholder="Search users..." 
+                      onChange={(e) => setSearchTerm(e.target.value)} 
+                    />
                   </div>
                 </div>
               </header>

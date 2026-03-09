@@ -13,7 +13,12 @@ const reasons = [
   { id: 'Others', icon: Plus, color: '#94a3b8' },
 ];
 
-const ReasonSelection = () => {
+// Added prop type for the redirect callback
+interface ReasonSelectionProps {
+  onComplete?: () => Promise<void>;
+}
+
+const ReasonSelection = ({ onComplete }: ReasonSelectionProps) => {
   const { user } = UserAuth();
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success'>('idle');
@@ -36,8 +41,14 @@ const ReasonSelection = () => {
       setLoading(false);
     } else {
       setStatus('success');
-      setTimeout(() => setStatus('idle'), 3000); 
       setLoading(false);
+
+      // Trigger the redirect/sign-out after 2.5 seconds to let the user see the success message
+      if (onComplete) {
+        setTimeout(async () => {
+          await onComplete();
+        }, 2500);
+      }
     }
   };
 
@@ -46,7 +57,7 @@ const ReasonSelection = () => {
       <div className="auth-card-modern success-state-container">
         <CheckCircle size={64} color="#22c55e" className="success-icon-center" />
         <h2 className="auth-title">Visit Logged!</h2>
-        <p className="auth-subtitle">Thank you for visiting the NEU Library.</p>
+        <p className="auth-subtitle">Thank you for visiting. You are being redirected...</p>
       </div>
     );
   }
