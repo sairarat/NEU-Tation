@@ -3,18 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { UserAuth } from '../context/AuthContext';
 import { BookOpen, UserPlus, LogIn } from "lucide-react";
 
-/*
- * CSS variable reference (base.css):
- *   --neu-green:       #4caf50
- *   --neu-green-hover: #43a047
- *   --bg-white:        #ffffff
- *   --input-fill:      #f1f3f4
- *   --text-dark:       #1a1d21
- *   --text-muted:      #70757a
- *   --shadow:          0 4px 20px rgba(0,0,0,0.08)
- *   --radius-md:       8px   → calc(--radius-md - 2px) = 6px for inner tab
- */
-
 const Signup = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName]   = useState('');
@@ -32,18 +20,17 @@ const Signup = () => {
     const result = await signUpNewUser(email, password, firstName, lastName);
 
     if (result.success) {
-      navigate('/dashboard');
+      // FIX: Go to /complete-profile first — the profile row exists but
+      // college_office and role haven't been set yet. Sending users directly
+      // to /dashboard caused RoleGuard to bounce them around or show errors
+      // because the role check returned null.
+      navigate('/complete-profile');
     } else {
       alert(result.error?.message || 'Signup failed');
       setLoading(false);
     }
   };
 
-  /*
-   * .input-modern
-   * width:100%; padding:10px 12px; background:#f1f3f4;
-   * border:1.5px solid transparent; border-radius:8px; font-size:14px;
-   */
   const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '10px 12px',
@@ -66,20 +53,7 @@ const Signup = () => {
   };
 
   return (
-    /*
-     * .auth-container
-     * min-height:100vh; display:flex; align-items:center;
-     * justify-content:center; padding:20px;
-     */
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-
-      {/*
-       * .auth-card-modern
-       * background:#ffffff; padding:48px 40px; border-radius:40px;
-       * box-shadow:0 4px 20px rgba(0,0,0,0.08);
-       * width:90%; max-width:430px; text-align:center;
-       * position:relative; z-index:1; margin:20px auto;
-       */}
       <div
         style={{
           background: '#ffffff',
@@ -94,13 +68,6 @@ const Signup = () => {
           margin: '20px auto',
         }}
       >
-
-        {/*
-         * .brand-circle
-         * background:#4caf50; width:48px; height:48px; border-radius:50%;
-         * display:flex; align-items:center; justify-content:center;
-         * margin:0 auto 12px;
-         */}
         <div
           style={{
             background: '#4caf50',
@@ -116,19 +83,11 @@ const Signup = () => {
           <BookOpen color="white" size={22} strokeWidth={2.5} />
         </div>
 
-        {/*
-         * .auth-title
-         * font-size:20px; font-weight:800; margin:0 0 4px; color:#1a1d21;
-         */}
         <h1 style={{ fontSize: '20px', fontWeight: 800, margin: '0 0 4px', color: '#1a1d21' }}>
           Create Account
         </h1>
 
-        {/*
-         * .auth-tabs
-         * display:flex; background:#f1f3f4; padding:4px;
-         * border-radius:8px; margin-bottom:16px; margin-top:16px;
-         */}
+        {/* Tabs */}
         <div
           style={{
             display: 'flex',
@@ -139,10 +98,6 @@ const Signup = () => {
             marginTop: '16px',
           }}
         >
-          {/*
-           * .tab-link (inactive — Sign In)
-           * background:transparent; color:#6366f1
-           */}
           <Link
             to="/signin"
             style={{
@@ -164,10 +119,6 @@ const Signup = () => {
             <LogIn size={13} /> Sign In
           </Link>
 
-          {/*
-           * .tab-link (active — Sign Up)
-           * background:white; color:#1a1d21; box-shadow:0 1px 4px rgba(0,0,0,0.1)
-           */}
           <div
             style={{
               flex: 1,
@@ -192,12 +143,6 @@ const Signup = () => {
 
         {/* Form */}
         <form onSubmit={handleSignup} style={{ width: '100%' }}>
-
-          {/*
-           * .name-row
-           * display:grid; grid-template-columns:1fr 1fr;
-           * gap:12px; margin-bottom:12px;
-           */}
           <div
             style={{
               display: 'grid',
@@ -206,11 +151,6 @@ const Signup = () => {
               marginBottom: '12px',
             }}
           >
-            {/*
-             * .form-group
-             * text-align:left; display:flex; flex-direction:column; gap:1px;
-             * label: font-weight:700; font-size:12px; color:#1a1d21;
-             */}
             <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '1px' }}>
               <label style={{ fontWeight: 700, fontSize: '12px', color: '#1a1d21' }}>First Name</label>
               <input
@@ -238,7 +178,6 @@ const Signup = () => {
             </div>
           </div>
 
-          {/* .form-group — Email */}
           <div style={{ textAlign: 'left', marginBottom: '15px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
             <label style={{ fontWeight: 700, fontSize: '12px', color: '#1a1d21' }}>Email</label>
             <input
@@ -253,7 +192,6 @@ const Signup = () => {
             />
           </div>
 
-          {/* .form-group — Password */}
           <div style={{ textAlign: 'left', marginBottom: '15px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
             <label style={{ fontWeight: 700, fontSize: '12px', color: '#1a1d21' }}>Password</label>
             <input
@@ -268,13 +206,6 @@ const Signup = () => {
             />
           </div>
 
-          {/*
-           * .btn-primary-neu
-           * width:100%; background:#4caf50; color:white; padding:13px;
-           * border:none; border-radius:8px; font-size:14px; font-weight:700;
-           * cursor:pointer; margin-top:8px; transition:0.2s;
-           * :hover → background:#43a047; transform:translateY(-1px);
-           */}
           <button
             type="submit"
             disabled={loading}
@@ -307,17 +238,12 @@ const Signup = () => {
           </button>
         </form>
 
-        {/*
-         * .footer-note
-         * margin-top:16px; font-size:11px; color:#70757a;
-         */}
         <p style={{ marginTop: '16px', fontSize: '11px', color: '#70757a' }}>
           Already have an account?{' '}
           <Link to="/signin" style={{ color: '#4caf50', fontWeight: 600, textDecoration: 'none' }}>
             Sign In
           </Link>
         </p>
-
       </div>
     </div>
   );

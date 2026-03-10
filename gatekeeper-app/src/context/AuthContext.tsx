@@ -2,6 +2,7 @@ import { createContext, useEffect, useState, useContext } from "react";
 import { supabase } from "../supabaseClient";
 import type { Session, User } from "@supabase/supabase-js";
 
+
 interface AuthContextType {
   session: Session | null | undefined;
   user: User | null;
@@ -40,15 +41,17 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
   const signUpNewUser = async (email: string, password: string, first: string, last: string) => {
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) return { success: false, error };
-    
+
     // Create profile entry on successful signup
     if (data.user) {
-      await supabase.from('profiles').insert([{ 
-        id: data.user.id, 
-        email, 
-        first_name: first, 
-        last_name: last, 
-        role: 'student' 
+      await supabase.from('profiles').insert([{
+        id: data.user.id,
+        email,
+        first_name: first,
+        last_name: last,
+        role: 'student'
+        // NOTE: college_office is intentionally left empty here.
+        // The user will fill it in on the /complete-profile page.
       }]);
     }
     return { success: true, data };
@@ -65,10 +68,16 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
   };
 
   const signInWithGoogle = async () => {
+    // FIX: Use the deployed site URL from env so OAuth doesn't redirect back
+    // to localhost in production. Set VITE_SITE_URL in your .env.production
+    // e.g. VITE_SITE_URL=https://your-app.vercel.app
+    // Also add this URL to: Supabase → Auth → URL Configuration → Redirect URLs
+    const siteUrl = import.meta.env.VITE_SITE_URL ?? window.location.origin;
+
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { 
-        redirectTo: window.location.origin + '/dashboard' 
+      options: {
+        redirectTo: `${siteUrl}/dashboard`,
       },
     });
   };

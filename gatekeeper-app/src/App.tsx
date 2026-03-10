@@ -1,18 +1,19 @@
 import { Outlet } from 'react-router-dom';
-import './styles/base.css'; // Ensure your global styles are imported here
+import { AuthContextProvider } from './context/AuthContext';
+import './styles/base.css';
 
 function App() {
   return (
-    /* The app-container div ensures that your background image, 
-       blur effects, and global layout persist across all pages.
-    */
-    <div className="app-container">
-      {/* The <Outlet /> is a placeholder. 
-         React Router will inject the component for the current route 
-         (defined in your router.tsx) right here.
-      */}
-      <Outlet />
-    </div>
+    // AuthContextProvider must live INSIDE the router tree so that all
+    // child routes (Signin, Signup, Dashboard, etc.) can safely call
+    // UserAuth(). Wrapping RouterProvider with it in main.tsx is not
+    // reliable with createBrowserRouter because RouterProvider itself
+    // creates a separate React subtree.
+    <AuthContextProvider>
+      <div className="app-container">
+        <Outlet />
+      </div>
+    </AuthContextProvider>
   );
 }
 
