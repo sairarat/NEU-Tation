@@ -1,0 +1,11 @@
+/* src/styles/master.css */
+@import '../index.css'; 
+@import '../auth.css';
+@import './base.css';
+@import './modal.css';
+@import './profile-setup.css';
+@import './reason-selection.css';
+@import './user-dashboard.css';
+@import './admin-dashboard.css';
+@import './admin-dashboard-analytics.css';
+@import './admin-dashboard-logs.css';

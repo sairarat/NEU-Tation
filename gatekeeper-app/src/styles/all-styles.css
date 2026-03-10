@@ -1,0 +1,10 @@
+/* src/all-styles.css */
+@import './index.css';
+@import './auth.css';
+@import './styles/base.css';
+@import './styles/admin-dashboard.css';
+@import './styles/admin-dashboard-analytics.css';
+@import './styles/admin-dashboard-logs.css';
+@import './styles/user-dashboard.css';
+@import './styles/reason-selection.css';
+@import './styles/profile-setup.css';
