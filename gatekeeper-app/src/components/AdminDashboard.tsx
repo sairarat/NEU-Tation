@@ -9,7 +9,7 @@ import {
 
 // Import your sub-components
 import AdminDashboardAnalytics from './AdminDashboardAnalytics'; 
-import AdminDashboardLogs from './AdminDashboardLogs'; // New Component
+import AdminDashboardLogs from './AdminDashboardLogs'; 
 import '../styles/admin-dashboard.css';
 import neuLogo from '../assets/neu_logo_placeholder.png';
 
