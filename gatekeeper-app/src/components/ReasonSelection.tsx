@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Book, Search, Monitor, PenTool, Plus, Loader2, CheckCircle } from 'lucide-react';
 import { UserAuth } from '../context/AuthContext';
 import { supabase } from '../supabaseClient';

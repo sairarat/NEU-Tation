@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { 
-  Search, Filter, Clock, Calendar, 
-  ArrowDownAz, AlertCircle, RefreshCw 
+  Search, Clock, Calendar, 
+  AlertCircle, RefreshCw 
 } from 'lucide-react';
 import '../styles/admin-dashboard-logs.css';
 

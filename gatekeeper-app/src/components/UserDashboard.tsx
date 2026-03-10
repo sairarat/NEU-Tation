@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { UserAuth } from '../context/AuthContext';
 import { supabase } from '../supabaseClient';
-import { UserCircle, LogOut, Edit, Save, BookOpen, X } from 'lucide-react';
+import { UserCircle, LogOut, Save, BookOpen, X } from 'lucide-react';
 import ReasonSelection from './ReasonSelection';
 import '../styles/user-dashboard.css';
 

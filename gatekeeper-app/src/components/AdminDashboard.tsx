@@ -4,7 +4,7 @@ import { supabase } from '../supabaseClient';
 import { 
   ShieldCheck, LogOut, Users, Building2, Search, 
   AlertCircle, UserCheck, UserMinus,
-  Menu, X, LayoutDashboard, BarChart3, History, Settings 
+  Menu, X, BarChart3, History
 } from 'lucide-react';
 
 // Import your sub-components

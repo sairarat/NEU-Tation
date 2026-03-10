@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserAuth } from '../context/AuthContext';
-import { BookOpen, UserPlus, LogIn, Chrome } from "lucide-react"; 
+import { BookOpen, UserPlus, LogIn } from "lucide-react"; 
 import '../auth.css';
 
 const Signup = () => {
@@ -65,10 +65,6 @@ const Signup = () => {
           </button>
         </form>
 
-        {/* <div className="auth-divider"><span>OR</span></div> */}
-        {/* <button onClick={signInWithGoogle} className="btn-google-auth" type="button">
-          <Chrome size={20} /> Continue with Google
-        </button> */}
       </div> 
     </div>
   );
