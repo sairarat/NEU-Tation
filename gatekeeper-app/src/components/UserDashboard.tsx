@@ -67,7 +67,7 @@ const UserDashboard = () => {
     { value: 'COA', label: 'College of Accountancy' },
     { value: 'COM', label: 'College of Music' },
     { value: 'SOIR', label: 'School of International Relations' },
-    { value: 'O/NL', label: 'Others/Not Listed' },
+    { value: 'O/NL', label: 'Other/Not Listed' },
   ];
 
   const modalInputStyle: React.CSSProperties = {
