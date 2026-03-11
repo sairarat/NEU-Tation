@@ -2,25 +2,15 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserAuth } from '../context/AuthContext';
 import { supabase } from '../supabaseClient';
-import { BookOpen, LogIn, UserPlus, Chrome } from "lucide-react";
-
-/*
- * CSS variable reference (base.css):
- *   --neu-green:       #4caf50
- *   --neu-green-hover: #43a047
- *   --bg-white:        #ffffff
- *   --input-fill:      #f1f3f4
- *   --text-dark:       #1a1d21
- *   --text-muted:      #70757a
- *   --shadow:          0 4px 20px rgba(0,0,0,0.08)
- *   --radius-md:       8px   → calc(--radius-md - 2px) = 6px for inner tab
- */
+import { LogIn, UserPlus, Eye, EyeOff } from "lucide-react";
+import neuLogo from '../assets/neu_logo_placeholder.png';
 
 const Signin = () => {
-  const [email, setEmail]       = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState('');
+  const [email, setEmail]               = useState('');
+  const [password, setPassword]         = useState('');
+  const [loading, setLoading]           = useState(false);
+  const [error, setError]               = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const { signInUser, signInWithGoogle } = UserAuth();
   const navigate = useNavigate();
@@ -30,73 +20,67 @@ const Signin = () => {
     setLoading(true);
     setError('');
 
-    const result = await signInUser(email, password);
+    try {
+      const result = await signInUser(email, password);
 
-    if (result.success && result.user) {
-      await new Promise(res => setTimeout(res, 500));
+      if (result.success && result.user) {
+        await new Promise(res => setTimeout(res, 400));
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('college_office, role')
-        .eq('id', result.user.id)
-        .single();
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('college_office, role')
+          .eq('id', result.user.id)
+          .single();
 
-      if (!profile?.college_office) {
-        navigate('/complete-profile');
+        if (!profile?.college_office) {
+          navigate('/complete-profile');
+        } else {
+          navigate(profile.role === 'admin' ? '/admin-dashboard' : '/dashboard');
+        }
       } else {
-        navigate(profile.role === 'admin' ? '/admin-dashboard' : '/dashboard');
+        setError(result.error || 'Invalid email or password.');
       }
-    } else {
-      setError(result.error || 'Invalid credentials');
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
       setLoading(false);
     }
   };
 
-  /* Shared .input-modern style */
-  const inputStyle: React.CSSProperties = {
+  const inputBase: React.CSSProperties = {
     width: '100%',
-    padding: '10px 12px',
-    background: '#f1f3f4',           /* --input-fill */
+    padding: '11px 14px',
+    background: '#f4f6f8',
     border: '1.5px solid transparent',
-    borderRadius: '8px',             /* --radius-md */
+    borderRadius: '10px',
     fontSize: '14px',
     color: '#1a1d21',
     outline: 'none',
-    transition: 'border-color 0.2s, box-shadow 0.2s',
+    transition: 'border-color 0.2s, box-shadow 0.2s, background 0.2s',
+    boxSizing: 'border-box',
   };
 
   const onFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     e.currentTarget.style.borderColor = '#4caf50';
-    e.currentTarget.style.boxShadow   = '0 0 0 3px rgba(76,175,80,0.12)';
+    e.currentTarget.style.background  = '#ffffff';
+    e.currentTarget.style.boxShadow   = '0 0 0 3px rgba(76,175,80,0.13)';
   };
   const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     e.currentTarget.style.borderColor = 'transparent';
+    e.currentTarget.style.background  = '#f4f6f8';
     e.currentTarget.style.boxShadow   = '';
   };
 
   return (
-    /*
-     * .auth-container
-     * min-height:100vh; display:flex; align-items:center;
-     * justify-content:center; padding:20px;
-     */
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-
-      {/*
-       * .auth-card-modern
-       * background:#ffffff; padding:48px 40px; border-radius:40px;
-       * box-shadow:0 4px 20px rgba(0,0,0,0.08);
-       * width:90%; max-width:430px; text-align:center;
-       * position:relative; z-index:1; margin:20px auto;
-       */}
       <div
         style={{
           background: '#ffffff',
-          padding: '48px 40px',
-          borderRadius: '40px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+          padding: '40px 38px 36px',
+          borderRadius: '28px',
+          boxShadow: '0 8px 48px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.04)',
           width: '90%',
-          maxWidth: '430px',
+          maxWidth: '420px',
           textAlign: 'center',
           position: 'relative',
           zIndex: 1,
@@ -104,117 +88,93 @@ const Signin = () => {
         }}
       >
 
-        {/*
-         * .brand-circle
-         * background:#4caf50; width:48px; height:48px; border-radius:50%;
-         * display:flex; align-items:center; justify-content:center;
-         * margin:0 auto 12px;
-         */}
+        {/* ── Green accent bar at top ── */}
         <div
           style={{
-            background: '#4caf50',
-            width: '48px',
-            height: '48px',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 12px',
+            position: 'absolute',
+            top: 0,
+            left: '10%',
+            width: '80%',
+            height: '3px',
+            background: 'linear-gradient(90deg, #4caf50, #81c784)',
+            borderRadius: '0 0 6px 6px',
           }}
-        >
-          <BookOpen color="white" size={22} strokeWidth={2.5} />
+        />
+
+        {/* ── NEU Logo ── */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '4px auto 10px' }}>
+          <img
+            src={neuLogo}
+            alt="New Era University Logo"
+            style={{ width: '70px', height: '70px', objectFit: 'contain', display: 'block' }}
+          />
         </div>
 
-        {/*
-         * .auth-title
-         * font-size:20px; font-weight:800; margin:0 0 4px; color:#1a1d21;
-         */}
-        <h1 style={{ fontSize: '20px', fontWeight: 800, margin: '0 0 4px', color: '#1a1d21' }}>
+        {/* ── Title & subtitle ── */}
+        <h1 style={{ fontSize: '19px', fontWeight: 800, margin: '0 0 3px', color: '#111827', letterSpacing: '-0.4px' }}>
           NEU Library
         </h1>
+        <p style={{ fontSize: '12.5px', color: '#94a3b8', margin: '0 0 20px', fontWeight: 500 }}>
+          Sign in to your account
+        </p>
 
-        {/*
-         * .auth-tabs
-         * display:flex; background:#f1f3f4; padding:4px;
-         * border-radius:8px; margin-bottom:16px;
-         */}
+        {/* ── Tab switcher ── */}
         <div
           style={{
             display: 'flex',
             background: '#f1f3f4',
             padding: '4px',
-            borderRadius: '8px',
-            marginBottom: '16px',
-            marginTop: '16px',
+            borderRadius: '11px',
+            marginBottom: '24px',
           }}
         >
-          {/*
-           * .tab-link (active — Sign In)
-           * flex:1; padding:8px; font-weight:600; font-size:12px;
-           * border-radius:6px; (calc(8px - 2px))
-           * display:flex; align-items:center; justify-content:center; gap:6px;
-           * Active: background:white; color:#1a1d21; box-shadow:0 1px 4px rgba(0,0,0,0.1)
-           */}
+          {/* ACTIVE — Sign In */}
           <div
             style={{
-              flex: 1,
-              padding: '8px',
-              fontWeight: 600,
-              fontSize: '12px',
-              borderRadius: '6px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
+              flex: 1, padding: '9px 8px',
+              fontWeight: 700, fontSize: '12px',
+              borderRadius: '8px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
               background: '#ffffff',
-              color: '#1a1d21',
-              boxShadow: '0 1px 4px rgba(0,0,0,0.10)',
+              color: '#111827',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.09)',
               cursor: 'default',
-              transition: '0.2s',
+              letterSpacing: '0.1px',
             }}
           >
-            <LogIn size={13} /> Sign In
+            <LogIn size={13} strokeWidth={2.5} /> Sign In
           </div>
-
-          {/*
-           * .tab-link (inactive — Sign Up)
-           * background:transparent; color:#6366f1 (indigo, per screenshot);
-           */}
+          {/* INACTIVE — Sign Up */}
           <Link
             to="/signup"
             style={{
-              flex: 1,
-              padding: '8px',
-              fontWeight: 600,
-              fontSize: '12px',
-              borderRadius: '6px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
+              flex: 1, padding: '9px 8px',
+              fontWeight: 600, fontSize: '12px',
+              borderRadius: '8px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
               background: 'transparent',
               color: '#6366f1',
               textDecoration: 'none',
-              transition: '0.2s',
+              letterSpacing: '0.1px',
             }}
           >
-            <UserPlus size={13} /> Sign Up
+            <UserPlus size={13} strokeWidth={2.5} /> Sign Up
           </Link>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSignin} style={{ width: '100%' }}>
+        {/* ── Form ── */}
+        <form onSubmit={handleSignin} style={{ width: '100%', textAlign: 'left' }}>
 
-          {/*
-           * .form-group
-           * text-align:left; margin-bottom:15px;
-           * display:flex; flex-direction:column; gap:1px;
-           * label: font-weight:700; font-size:12px; color:#1a1d21;
-           */}
-          <div style={{ textAlign: 'left', marginBottom: '15px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
-            <label style={{ fontWeight: 700, fontSize: '12px', color: '#1a1d21' }}>Email</label>
+          {/* Email */}
+          <div style={{ marginBottom: '14px' }}>
+            <label style={{
+              display: 'block', fontWeight: 700, fontSize: '11px',
+              color: '#6b7280', marginBottom: '6px', letterSpacing: '0.6px', textTransform: 'uppercase',
+            }}>
+              Email Address
+            </label>
             <input
-              style={inputStyle}
+              style={inputBase}
               type="email"
               placeholder="name@neu.edu.ph"
               value={email}
@@ -225,85 +185,120 @@ const Signin = () => {
             />
           </div>
 
-          <div style={{ textAlign: 'left', marginBottom: '15px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
-            <label style={{ fontWeight: 700, fontSize: '12px', color: '#1a1d21' }}>Password</label>
-            <input
-              style={inputStyle}
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              onFocus={onFocus}
-              onBlur={onBlur}
-              required
-            />
+          {/* Password */}
+          <div style={{ marginBottom: '8px' }}>
+            <label style={{
+              display: 'block', fontWeight: 700, fontSize: '11px',
+              color: '#6b7280', marginBottom: '6px', letterSpacing: '0.6px', textTransform: 'uppercase',
+            }}>
+              Password
+            </label>
+            <div style={{ position: 'relative' }}>
+              <input
+                style={{ ...inputBase, paddingRight: '46px' }}
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                onFocus={onFocus}
+                onBlur={onBlur}
+                required
+              />
+              {/* Eye toggle */}
+              <button
+                type="button"
+                tabIndex={-1}
+                onClick={() => setShowPassword(v => !v)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  padding: '4px',
+                  cursor: 'pointer',
+                  color: '#9ca3af',
+                  display: 'flex',
+                  alignItems: 'center',
+                  lineHeight: 0,
+                  borderRadius: '4px',
+                  transition: 'color 0.15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = '#4caf50'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = '#9ca3af'; }}
+              >
+                {showPassword
+                  ? <EyeOff size={17} strokeWidth={2} />
+                  : <Eye    size={17} strokeWidth={2} />}
+              </button>
+            </div>
           </div>
 
+          {/* Error banner */}
           {error && (
-            <p style={{ color: '#ef4444', fontSize: '12px', marginBottom: '8px', textAlign: 'center' }}>
-              {error}
-            </p>
+            <div
+              style={{
+                background: 'rgba(239,68,68,0.06)',
+                border: '1px solid rgba(239,68,68,0.18)',
+                borderRadius: '9px',
+                padding: '9px 12px',
+                margin: '10px 0 4px',
+              }}
+            >
+              <p style={{ color: '#dc2626', fontSize: '12px', margin: 0, textAlign: 'center', fontWeight: 500 }}>
+                {error}
+              </p>
+            </div>
           )}
 
-          {/*
-           * .btn-primary-neu
-           * width:100%; background:#4caf50; color:white; padding:13px;
-           * border:none; border-radius:8px; font-size:14px; font-weight:700;
-           * cursor:pointer; margin-top:8px; transition:0.2s;
-           * :hover → background:#43a047; transform:translateY(-1px);
-           */}
+          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
             style={{
               width: '100%',
-              background: '#4caf50',
+              background: loading ? '#a5d6a7' : '#4caf50',
               color: 'white',
               padding: '13px',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '10px',
               fontSize: '14px',
               fontWeight: 700,
               cursor: loading ? 'not-allowed' : 'pointer',
-              marginTop: '8px',
-              transition: '0.2s',
-              opacity: loading ? 0.65 : 1,
+              marginTop: '16px',
+              letterSpacing: '0.2px',
+              transition: 'background 0.2s, transform 0.15s, box-shadow 0.2s',
+              boxShadow: loading ? 'none' : '0 3px 10px rgba(76,175,80,0.28)',
             }}
             onMouseEnter={e => {
               if (!loading) {
-                e.currentTarget.style.background = '#43a047';
-                e.currentTarget.style.transform  = 'translateY(-1px)';
+                e.currentTarget.style.background  = '#43a047';
+                e.currentTarget.style.transform   = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow   = '0 6px 18px rgba(76,175,80,0.32)';
               }
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.background = '#4caf50';
-              e.currentTarget.style.transform  = '';
+              if (!loading) {
+                e.currentTarget.style.background  = '#4caf50';
+                e.currentTarget.style.transform   = '';
+                e.currentTarget.style.boxShadow   = '0 3px 10px rgba(76,175,80,0.28)';
+              }
             }}
           >
-            {loading ? 'Verifying...' : 'Sign In'}
+            {loading ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
 
-        {/*
-         * .auth-divider
-         * display:flex; align-items:center; margin:20px 0;
-         * color:#94a3b8; font-size:12px;
-         * ::before/::after → flex:1; height:1px; background:#e2e8f0; margin:0 10px;
-         */}
-        <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0', color: '#94a3b8', fontSize: '12px' }}>
-          <div style={{ flex: 1, height: '1px', background: '#e2e8f0', marginRight: '10px' }} />
-          OR
-          <div style={{ flex: 1, height: '1px', background: '#e2e8f0', marginLeft: '10px' }} />
+        {/* ── Divider ── */}
+        <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0 16px', gap: '10px' }}>
+          <div style={{ flex: 1, height: '1px', background: '#e8eaed' }} />
+          <span style={{ fontSize: '11px', color: '#9ca3af', fontWeight: 600, letterSpacing: '0.4px' }}>OR</span>
+          <div style={{ flex: 1, height: '1px', background: '#e8eaed' }} />
         </div>
 
-        {/*
-         * .btn-google-auth
-         * width:100%; padding:12px; background:white;
-         * border:1.5px solid #e2e8f0; border-radius:12px;
-         * display:flex; align-items:center; justify-content:center;
-         * gap:10px; font-weight:700; color:#1e293b; cursor:pointer; transition:0.2s;
-         * :hover → background:#f8fafc;
-         */}
+        {/* ── Google ── */}
         <button
           type="button"
           onClick={signInWithGoogle}
@@ -311,23 +306,48 @@ const Signin = () => {
             width: '100%',
             padding: '12px',
             background: 'white',
-            border: '1.5px solid #e2e8f0',
-            borderRadius: '12px',
+            border: '1.5px solid #e8eaed',
+            borderRadius: '10px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '10px',
             fontWeight: 700,
-            fontSize: '14px',
+            fontSize: '13.5px',
             color: '#1e293b',
             cursor: 'pointer',
-            transition: '0.2s',
+            transition: 'background 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s',
           }}
-          onMouseEnter={e => { e.currentTarget.style.background = '#f8fafc'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'white'; }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background   = '#f8fafc';
+            e.currentTarget.style.borderColor  = '#c7d2de';
+            e.currentTarget.style.transform    = 'translateY(-1px)';
+            e.currentTarget.style.boxShadow    = '0 3px 8px rgba(0,0,0,0.06)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background   = 'white';
+            e.currentTarget.style.borderColor  = '#e8eaed';
+            e.currentTarget.style.transform    = '';
+            e.currentTarget.style.boxShadow    = '';
+          }}
         >
-          <Chrome size={18} /> Continue with Google
+          {/* Real Google G logo */}
+          <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Continue with Google
         </button>
+
+        {/* ── Footer ── */}
+        <p style={{ marginTop: '20px', fontSize: '11.5px', color: '#94a3b8' }}>
+          New here?{' '}
+          <Link to="/signup" style={{ color: '#4caf50', fontWeight: 700, textDecoration: 'none' }}>
+            Create an account
+          </Link>
+        </p>
 
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
-import { BarChart3, Clock, ShieldCheck } from 'lucide-react';
+import { BarChart3, Clock, ShieldCheck, Users, GraduationCap, Briefcase, Activity } from 'lucide-react';
 
 const AdminDashboardAnalytics = () => {
   const [loading, setLoading]       = useState(true);
@@ -20,16 +20,13 @@ const AdminDashboardAnalytics = () => {
     const fetchComprehensiveAnalytics = async () => {
       try {
         setLoading(true);
-
         const { data: profiles, error: pError } = await supabase.from('profiles').select('*');
         if (pError) throw pError;
-
         const { data: logs, error: lError } = await supabase.from('logs').select('timestamp');
         if (lError) throw lError;
 
         if (profiles && logs) {
           const now = new Date();
-
           const filteredProfiles = profiles.filter(u => {
             const d = new Date(u.created_at || now);
             if (timeFilter === 'today') return d.toDateString() === now.toDateString();
@@ -40,12 +37,11 @@ const AdminDashboardAnalytics = () => {
 
           const hourlyBuckets = Array(24).fill(0);
           logs.forEach(log => { hourlyBuckets[new Date(log.timestamp).getHours()]++; });
-
           const maxVisits   = Math.max(...hourlyBuckets);
           const peakHourIdx = hourlyBuckets.indexOf(maxVisits);
-          const peakLabel   = peakHourIdx === 0 ? "12 AM"
+          const peakLabel   = peakHourIdx === 0 ? '12 AM'
             : peakHourIdx < 12  ? `${peakHourIdx} AM`
-            : peakHourIdx === 12 ? "12 PM"
+            : peakHourIdx === 12 ? '12 PM'
             : `${peakHourIdx - 12} PM`;
 
           setPeakStats({ buckets: hourlyBuckets, peakTime: peakLabel, maxCount: maxVisits });
@@ -55,7 +51,6 @@ const AdminDashboardAnalytics = () => {
             const name = u.college_office || 'Unspecified';
             depts[name] = (depts[name] || 0) + 1;
           });
-
           setDeptStats(Object.entries(depts).map(([name, count]) => ({ name, count: count as number })));
           setStats({
             total:       filteredProfiles.length,
@@ -66,294 +61,324 @@ const AdminDashboardAnalytics = () => {
           });
         }
       } catch (err) {
-        console.error("Intelligence Fetch Error:", err);
+        console.error('Intelligence Fetch Error:', err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchComprehensiveAnalytics();
   }, [timeFilter, startDate, endDate]);
 
-  const total  = stats.total || 1;
-  const sPerc  = (stats.students / total) * 100;
-  const fPerc  = (stats.faculty  / total) * 100;
+  const total   = stats.total || 1;
+  const sPerc   = (stats.students / total) * 100;
+  const fPerc   = (stats.faculty  / total) * 100;
+  const aPerc   = (stats.admins   / total) * 100;
   const maxDept = Math.max(...deptStats.map(d => d.count), 1);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-10 text-slate-400">
-        Calculating Library Intelligence...
+      <div style={{ padding: '60px', textAlign: 'center', color: '#334155', fontSize: '0.88rem' }}>
+        Calculating Library Intelligence…
       </div>
     );
   }
 
-  // ── analytics-vertical-container shared style ──
-  const vertContainerStyle: React.CSSProperties = {
+  const statCards = [
+    {
+      label: 'Total Users',
+      value: stats.total,
+      icon: Users,
+      color: '#60a5fa',
+      glow: 'rgba(96,165,250,0.15)',
+      bg: 'rgba(96,165,250,0.08)',
+      border: 'rgba(96,165,250,0.18)',
+    },
+    {
+      label: 'Students',
+      value: stats.students,
+      icon: GraduationCap,
+      color: '#34d399',
+      glow: 'rgba(52,211,153,0.15)',
+      bg: 'rgba(52,211,153,0.08)',
+      border: 'rgba(52,211,153,0.18)',
+    },
+    {
+      label: 'Staff / Faculty',
+      value: stats.faculty,
+      icon: Briefcase,
+      color: '#c084fc',
+      glow: 'rgba(192,132,252,0.15)',
+      bg: 'rgba(192,132,252,0.08)',
+      border: 'rgba(192,132,252,0.18)',
+    },
+    {
+      label: 'Active Accounts',
+      value: stats.activeToday,
+      icon: Activity,
+      color: '#fb923c',
+      glow: 'rgba(251,146,60,0.15)',
+      bg: 'rgba(251,146,60,0.08)',
+      border: 'rgba(251,146,60,0.18)',
+    },
+  ];
+
+  const panelStyle: React.CSSProperties = {
     flex: 1,
-    padding: '24px',
-    background: 'rgba(30,41,59,0.4)',
+    padding: '22px',
+    background: 'rgba(13,21,38,0.80)',
     backdropFilter: 'blur(10px)',
-    borderRadius: '20px',
-    border: '1px solid rgba(255,255,255,0.05)',
+    borderRadius: '16px',
+    border: '1px solid rgba(255,255,255,0.06)',
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px',
+    gap: '18px',
   };
 
+  const selectStyle: React.CSSProperties = {
+    background: 'rgba(255,255,255,0.04)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    color: '#94a3b8',
+    padding: '5px 10px',
+    borderRadius: '8px',
+    fontSize: '0.75rem',
+    outline: 'none',
+    cursor: 'pointer',
+  };
+
+  const deptColors = ['#60a5fa', '#34d399', '#c084fc', '#fb923c', '#f87171'];
+
   return (
-    // dual-analytics-wrapper (final override: flex-row, gap 30px, max-width 800px)
-    <div
-      className="animate-fade-in"
-      style={{
-        display: 'flex',
-        flexDirection: 'row',
-        gap: '30px',
-        width: '100%',
-        maxWidth: '800px',
-      }}
-    >
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '22px', maxWidth: '900px' }}>
 
-      {/* ── LEFT: Library Intelligence ── */}
-      <div style={vertContainerStyle}>
+      {/* ── Stat cards row ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px' }}>
+        {statCards.map(({ label, value, icon: Icon, color, bg, border }, i) => (
+          <div
+            key={label}
+            style={{
+              background: bg,
+              border: `1px solid ${border}`,
+              borderRadius: '14px',
+              padding: '18px 16px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              animation: `fadeUp 0.4s ease ${i * 0.06}s both`,
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+              cursor: 'default',
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
+              (e.currentTarget as HTMLDivElement).style.boxShadow = `0 8px 24px ${border}`;
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLDivElement).style.transform = '';
+              (e.currentTarget as HTMLDivElement).style.boxShadow = '';
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <p style={{ margin: 0, fontSize: '0.68rem', color: '#475569', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                {label}
+              </p>
+              <div style={{
+                width: '30px', height: '30px', borderRadius: '8px',
+                background: `${color}20`,
+                border: `1px solid ${color}30`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Icon size={15} color={color} />
+              </div>
+            </div>
+            <p style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800, color: '#f1f5f9', lineHeight: 1, letterSpacing: '-1px' }}>
+              {value}
+            </p>
+          </div>
+        ))}
+      </div>
 
-        {/* analytics-v-header */}
-        <header
-          className="flex justify-between items-center"
-          style={{ color: 'rgb(221,219,219)' }}
-        >
-          {/* header-title */}
-          <div className="flex items-center" style={{ gap: '12px' }}>
-            <BarChart3 size={20} color="#60a5fa" />
-            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: '#f8fafc' }}>
-              Library Intelligence
+      {/* ── Chart panels ── */}
+      <div style={{ display: 'flex', gap: '18px' }}>
+
+        {/* LEFT — Library Intelligence */}
+        <div style={panelStyle}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '3px', height: '18px', background: '#60a5fa', borderRadius: '2px' }} />
+              <h2 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: '#e2e8f0' }}>
+                User Breakdown
+              </h2>
+            </div>
+            <select style={selectStyle} value={timeFilter} onChange={e => setTimeFilter(e.target.value)}>
+              <option value="today">Today</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+
+          {/* Custom date range */}
+          {timeFilter === 'custom' && (
+            <div style={{
+              display: 'flex', flexDirection: 'column', gap: '10px',
+              background: 'rgba(0,0,0,0.25)',
+              padding: '14px', borderRadius: '10px',
+              border: '1px solid rgba(255,255,255,0.05)',
+            }}>
+              {[['From', startDate, setStartDate], ['To', endDate, setEndDate]].map(([label, val, setter]: any) => (
+                <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label style={{ fontSize: '0.7rem', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    {label}
+                  </label>
+                  <input
+                    type="date"
+                    value={val}
+                    onChange={e => setter(e.target.value)}
+                    style={{
+                      background: 'rgba(30,41,59,0.8)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      color: 'white', fontSize: '0.78rem',
+                      padding: '4px 8px', borderRadius: '6px', outline: 'none',
+                      colorScheme: 'dark',
+                    } as React.CSSProperties}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Donut chart */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', paddingTop: '6px' }}>
+            <div style={{ position: 'relative', width: '130px', height: '130px' }}>
+              <div style={{
+                width: '130px', height: '130px', borderRadius: '50%',
+                background: `conic-gradient(
+                  #60a5fa 0% ${sPerc}%,
+                  #34d399 ${sPerc}% ${sPerc + fPerc}%,
+                  #c084fc ${sPerc + fPerc}% ${sPerc + fPerc + aPerc}%,
+                  rgba(255,255,255,0.05) ${sPerc + fPerc + aPerc}% 100%
+                )`,
+                boxShadow: '0 4px 24px rgba(0,0,0,0.5)',
+              }} />
+              {/* Donut hole */}
+              <div style={{
+                position: 'absolute', top: '50%', left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '72px', height: '72px', borderRadius: '50%',
+                background: '#0d1526',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#f1f5f9', lineHeight: 1 }}>{stats.total}</p>
+                <p style={{ margin: 0, fontSize: '0.55rem', color: '#475569', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Users</p>
+              </div>
+            </div>
+
+            {/* Legend */}
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '7px' }}>
+              {[
+                { color: '#60a5fa', label: 'Students', perc: sPerc, count: stats.students },
+                { color: '#34d399', label: 'Faculty',  perc: fPerc, count: stats.faculty },
+                { color: '#c084fc', label: 'Admins',   perc: aPerc, count: stats.admins },
+              ].map(({ color, label, perc, count }) => (
+                <div key={label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ width: '8px', height: '8px', borderRadius: '2px', background: color, display: 'inline-block', flexShrink: 0 }} />
+                    <span style={{ fontSize: '0.78rem', color: '#64748b' }}>{label}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600 }}>{count}</span>
+                    <span style={{ fontSize: '0.7rem', color: '#334155' }}>{perc.toFixed(0)}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT — Library Engagement */}
+        <div style={panelStyle}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '3px', height: '18px', background: '#c084fc', borderRadius: '2px' }} />
+            <h2 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: '#e2e8f0' }}>
+              Dept. Engagement
             </h2>
           </div>
 
-          {/* time-filter-select */}
-          <select
-            style={{
-              background: 'rgba(15,23,42,0.6)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: 'white',
-              padding: '4px 8px',
-              borderRadius: '8px',
-              fontSize: '0.8rem',
-              outline: 'none',
-            }}
-            value={timeFilter}
-            onChange={e => setTimeFilter(e.target.value)}
-          >
-            <option value="today">Today</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-            <option value="custom">Custom Range</option>
-          </select>
-        </header>
-
-        {/* v-custom-date-stack */}
-        {timeFilter === 'custom' && (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px',
-              background: 'rgba(15,23,42,0.4)',
-              padding: '15px',
-              borderRadius: '12px',
-              border: '1px solid rgba(255,255,255,0.05)',
-            }}
-          >
-            {/* v-date-field */}
-            <div className="flex justify-between items-center">
-              <label style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                From
-              </label>
-              <input
-                type="date"
-                value={startDate}
-                onChange={e => setStartDate(e.target.value)}
-                style={{
-                  background: 'rgba(30,41,59,0.8)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: 'white',
-                  fontSize: '0.8rem',
-                  padding: '4px 8px',
-                  borderRadius: '6px',
-                  outline: 'none',
-                  colorScheme: 'dark',
-                } as React.CSSProperties}
-              />
-            </div>
-            {/* v-date-field */}
-            <div className="flex justify-between items-center">
-              <label style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                To
-              </label>
-              <input
-                type="date"
-                value={endDate}
-                onChange={e => setEndDate(e.target.value)}
-                style={{
-                  background: 'rgba(30,41,59,0.8)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: 'white',
-                  fontSize: '0.8rem',
-                  padding: '4px 8px',
-                  borderRadius: '6px',
-                  outline: 'none',
-                  colorScheme: 'dark',
-                } as React.CSSProperties}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* v-chart-container */}
-        <div
-          className="flex flex-col items-center"
-          style={{
-            gap: '15px',
-            padding: '15px 0',
-            borderTop: '1px solid rgba(255,255,255,0.05)',
-          }}
-        >
-          {/* css-pie-chart-small */}
-          <div
-            style={{
-              width: '140px',
-              height: '140px',
-              borderRadius: '50%',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.4)',
-              margin: '0 auto',
-              background: `conic-gradient(#60a5fa 0% ${sPerc}%, #4ade80 ${sPerc}% ${sPerc + fPerc}%, #f43f5e ${sPerc + fPerc}% 100%)`,
-            }}
-          />
-
-          {/* v-legend-stack */}
-          <div className="w-full flex flex-col" style={{ gap: '8px' }}>
-            {[
-              { dotClass: 'bg-[#60a5fa]', dotColor: '#60a5fa', label: `Students (${sPerc.toFixed(0)}%)` },
-              { dotClass: 'bg-[#4ade80]', dotColor: '#4ade80', label: `Faculty (${fPerc.toFixed(0)}%)` },
-              { dotClass: 'bg-[#f43f5e]', dotColor: '#f43f5e', label: `Admins (${(100 - sPerc - fPerc).toFixed(0)}%)` },
-            ].map(({ dotColor, label }) => (
-              // v-legend-item
-              <div key={label} className="flex items-center" style={{ gap: '10px', fontSize: '0.8rem', color: '#94a3b8' }}>
-                {/* dot */}
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: dotColor, display: 'inline-block' }} />
-                {label}
+          {/* Department bars */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <p style={{ margin: 0, fontSize: '0.62rem', color: '#334155', textTransform: 'uppercase', letterSpacing: '0.8px', fontWeight: 700 }}>
+              Top Departments
+            </p>
+            {deptStats.sort((a, b) => b.count - a.count).slice(0, 4).map((dept, i) => (
+              <div key={dept.name}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
+                  <span style={{
+                    fontSize: '0.78rem', color: '#94a3b8',
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '80%',
+                  }}>
+                    {dept.name}
+                  </span>
+                  <span style={{ fontSize: '0.72rem', color: '#475569', flexShrink: 0, marginLeft: '8px', fontWeight: 600 }}>
+                    {dept.count}
+                  </span>
+                </div>
+                <div style={{ height: '5px', background: 'rgba(255,255,255,0.04)', borderRadius: '10px', overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%',
+                    background: deptColors[i % deptColors.length],
+                    borderRadius: '10px',
+                    width: `${(dept.count / maxDept) * 100}%`,
+                    transition: 'width 0.6s cubic-bezier(0.22,1,0.36,1)',
+                    opacity: 0.85,
+                  }} />
+                </div>
               </div>
             ))}
           </div>
-        </div>
-      </div>
 
-      {/* ── RIGHT: Library Engagement ── */}
-      <div style={vertContainerStyle}>
+          {/* Divider */}
+          <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)' }} />
 
-        {/* analytics-v-header */}
-        <header
-          className="flex justify-between items-center"
-          style={{ color: 'rgb(221,219,219)' }}
-        >
-          {/* header-title */}
-          <div className="flex items-center" style={{ gap: '12px' }}>
-            <ShieldCheck size={20} color="#c084fc" />
-            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: '#f8fafc' }}>
-              Library Engagement
-            </h2>
-          </div>
-        </header>
-
-        {/* dept-distribution-stack */}
-        <div style={{ marginBottom: '10px' }}>
-          {/* v-section-label */}
-          <p
-            className="flex items-center"
-            style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '10px', gap: '8px' }}
-          >
-            Active Departments
-          </p>
-
-          {deptStats.sort((a, b) => b.count - a.count).slice(0, 3).map(dept => (
-            // dept-bar-row
-            <div key={dept.name} style={{ marginBottom: '12px' }}>
-              {/* dept-name */}
-              <span
-                style={{
-                  display: 'block',
-                  fontSize: '0.8rem',
-                  color: '#cbd5e1',
-                  marginBottom: '4px',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                }}
-              >
-                {dept.name}
+          {/* Hourly heatmap */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <p style={{ margin: 0, fontSize: '0.62rem', color: '#334155', textTransform: 'uppercase', letterSpacing: '0.8px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Clock size={12} /> Hourly Activity
+              </p>
+              <span style={{ fontSize: '0.72rem', color: '#60a5fa', fontWeight: 700 }}>
+                Peak: {peakStats.peakTime}
               </span>
-              {/* dept-bar-bg */}
-              <div style={{ height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px' }}>
-                {/* dept-bar-fill */}
-                <div
-                  style={{
-                    height: '100%',
-                    background: '#a855f7',
-                    borderRadius: '10px',
-                    width: `${(dept.count / maxDept) * 100}%`,
-                    transition: 'width 0.5s ease',
-                  }}
-                />
-              </div>
             </div>
-          ))}
-        </div>
 
-        {/* Peak hour section */}
-        <div>
-          {/* v-section-label */}
-          <p
-            className="flex items-center"
-            style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '10px', gap: '8px' }}
-          >
-            <Clock size={14} />
-            Peak Visit: <strong style={{ color: '#60a5fa', marginLeft: '4px' }}>{peakStats.peakTime}</strong>
-          </p>
-
-          {/* hourly-heatmap-container */}
-          <div
-            style={{
+            <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(24, 1fr)',
               gap: '2px',
-              height: '45px',
+              height: '50px',
               alignItems: 'flex-end',
-              paddingTop: '10px',
-            }}
-          >
-            {peakStats.buckets.map((count, hr) => (
-              // heatmap-bar
-              <div
-                key={hr}
-                title={`${hr}:00 - ${count} activities`}
-                style={{
-                  background: '#60a5fa',
-                  borderRadius: '2px 2px 0 0',
-                  width: '100%',
-                  height: `${(count / (peakStats.maxCount || 1)) * 100}%`,
-                  opacity: count === 0 ? 0.1 : 0.3 + (count / peakStats.maxCount) * 0.7,
-                  transition: 'height 0.3s ease, opacity 0.3s ease',
-                }}
-              />
-            ))}
-          </div>
+            }}>
+              {peakStats.buckets.map((count, hr) => {
+                const ratio = count / (peakStats.maxCount || 1);
+                return (
+                  <div
+                    key={hr}
+                    title={`${hr}:00 — ${count} visits`}
+                    style={{
+                      borderRadius: '2px 2px 0 0',
+                      width: '100%',
+                      height: `${Math.max(ratio * 100, count === 0 ? 6 : 0)}%`,
+                      background: count === 0
+                        ? 'rgba(255,255,255,0.04)'
+                        : `rgba(96,165,250,${0.25 + ratio * 0.75})`,
+                      transition: 'height 0.4s ease, background 0.2s',
+                    }}
+                  />
+                );
+              })}
+            </div>
 
-          {/* hour-labels-row */}
-          <div
-            className="flex justify-between"
-            style={{ marginTop: '6px', fontSize: '0.65rem', color: '#475569' }}
-          >
-            <span>12am</span><span>12pm</span><span>11pm</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px', fontSize: '0.6rem', color: '#1e293b' }}>
+              <span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span><span>11 PM</span>
+            </div>
           </div>
         </div>
       </div>
