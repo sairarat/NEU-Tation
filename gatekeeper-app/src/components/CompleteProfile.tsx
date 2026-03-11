@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { UserAuth } from "../context/AuthContext";
 import { GraduationCap, Loader2, CheckCircle2, ArrowRight, Hash, ChevronDown } from "lucide-react";
-import { departmentOptions } from "../constants/departmentOptions";
+import { departmentOptions } from "./constants/departmentOptions";
 
 const CompleteProfile = () => {
   const { user } = UserAuth();
