@@ -5,7 +5,7 @@ import { supabase } from '../supabaseClient';
 import { LogOut, Save, X, ChevronDown } from 'lucide-react';
 import ReasonSelection from './ReasonSelection';
 import neuLogo from '../assets/neu_logo_placeholder.png';
-import { departmentOptions } from './constants/departmentOptions';
+import { departmentOptions } from './constants/DepartmentOptions';
 
 const UserDashboard = () => {
   const { user, signOutUser } = UserAuth();
