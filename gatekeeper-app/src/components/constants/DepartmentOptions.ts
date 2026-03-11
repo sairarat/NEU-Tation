@@ -4,7 +4,7 @@
 export const departmentOptions = [
   { value: 'CAS',  label: 'College of Arts and Sciences' },
   { value: 'ICS',  label: 'College of Informatics and Computing Studies' },
-  { value: 'COE',  label: 'College of Engineering and Architecture' },
+  { value: 'CEA',  label: 'College of Engineering and Architecture' },
   { value: 'CBA',  label: 'College of Business Administration' },
   { value: 'CED',  label: 'College of Education' },
   { value: 'CON',  label: 'College of Nursing' },
