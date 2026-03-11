@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { UserAuth } from "../context/AuthContext";
 import { GraduationCap, Loader2, CheckCircle2, ArrowRight, Hash, ChevronDown } from "lucide-react";
+import { departmentOptions } from "../constants/departmentOptions";
 
 const CompleteProfile = () => {
   const { user } = UserAuth();
@@ -284,11 +285,9 @@ const CompleteProfile = () => {
                     onBlur={onBlur}
                   >
                     <option value="" disabled>Select your department</option>
-                    <option value="CAS">College of Arts and Sciences</option>
-                    <option value="ICS">Institute of Computer Studies</option>
-                    <option value="COE">College of Engineering</option>
-                    <option value="CBA">College of Business Administration</option>
-                    <option value="CED">College of Education</option>
+                    {departmentOptions.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
                   </select>
                   <ChevronDown
                     size={16}
