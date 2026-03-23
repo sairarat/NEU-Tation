@@ -11,7 +11,7 @@ The system replaces traditional manual logbooks with a secure, Google-integrated
 
 # Submission Navigation 
 - **Email** - jcesperanza@neu.edu.ph
-- **Password** - esperanzaJC@neu.edu.ph
+- **Password** - esperanzaJC
 - **Live Link** - https://neu-tation.vercel.app
 ## ✨ Key Features
 
